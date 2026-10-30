@@ -3,40 +3,51 @@ import fs from 'fs';
 import path from 'path';
 import { env } from './env';
 
-const logsDir = path.resolve(process.cwd(), 'logs');
-if (!fs.existsSync(logsDir)) {
+const isProduction = env.NODE_ENV === 'production' || !!process.env.VERCEL;
+
+const streams: pino.StreamEntry[] = [];
+
+if (!isProduction) {
   try {
-    fs.mkdirSync(logsDir, { recursive: true });
+    streams.push({
+      level: env.LOG_LEVEL as pino.Level,
+      stream: pino.transport({
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          translateTime: 'SYS:standard',
+          ignore: 'pid,hostname'
+        }
+      })
+    });
   } catch {
-    // Ignore if already created or sandbox restriction
+    streams.push({
+      level: env.LOG_LEVEL as pino.Level,
+      stream: process.stdout
+    });
   }
-}
 
-const logFilePath = path.resolve(process.cwd(), env.LOG_FILE_PATH);
-
-const streams: pino.StreamEntry[] = [
-  {
-    level: env.LOG_LEVEL as pino.Level,
-    stream: pino.transport({
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'SYS:standard',
-        ignore: 'pid,hostname'
-      }
-    })
+  // File stream for local debugging
+  try {
+    const logsDir = path.resolve(process.cwd(), 'logs');
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+    const logFilePath = path.resolve(process.cwd(), env.LOG_FILE_PATH);
+    const fileStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+    streams.push({
+      level: env.LOG_LEVEL as pino.Level,
+      stream: fileStream
+    });
+  } catch (err) {
+    // Ignore in read-only environments
   }
-];
-
-// File stream for persistent logging when writable
-try {
-  const fileStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+} else {
+  // Production / Serverless: Output raw JSON directly to stdout (no worker threads)
   streams.push({
     level: env.LOG_LEVEL as pino.Level,
-    stream: fileStream
+    stream: process.stdout
   });
-} catch (err) {
-  console.warn('⚠️ Could not initialize file logging stream:', err);
 }
 
 export const logger = pino(

@@ -6,13 +6,22 @@ let appInstance: any = null;
 export default async function handler(req: any, res: any) {
   try {
     await connectDatabase();
-  } catch (err) {
-    console.error('Database connection error in Vercel function:', err);
+  } catch (err: any) {
+    console.error('Database connection error in Vercel function:', err?.message || err);
   }
 
-  if (!appInstance) {
-    appInstance = createApp();
+  try {
+    if (!appInstance) {
+      appInstance = createApp();
+    }
+    return appInstance(req, res);
+  } catch (err: any) {
+    console.error('Express dispatch error in Vercel function:', err);
+    if (!res.headersSent) {
+      return res.status(500).json({
+        error: 'Internal Server Error',
+        details: err?.message || 'Unexpected serverless dispatch error'
+      });
+    }
   }
-
-  return appInstance(req, res);
 }
