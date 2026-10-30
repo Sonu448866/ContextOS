@@ -595,7 +595,52 @@ Follow this 10-step sequence to verify all capabilities:
 
 ## 26. Deployment Instructions
 
-### Option A: Unified Node.js Deployment (Render / Railway / Fly.io / Heroku)
+### 🌟 Option A: Complete Fullstack Deployment on Vercel (Recommended)
+
+ContextOS is pre-configured with `vercel.json` and a serverless entry point at `api/index.js`. You can deploy the complete application (Vite SPA frontend + Express API serverless backend) directly to Vercel in one single project:
+
+#### Method 1: Deploy via Vercel Web Dashboard (GitHub)
+1. Push your repository to **GitHub** (or GitLab/Bitbucket).
+2. Go to [Vercel Dashboard](https://vercel.com/new) and click **"Add New... > Project"**.
+3. Import your `ContextOS` repository.
+4. Configure the project settings:
+   - **Framework Preset:** Vite (or Other)
+   - **Root Directory:** `./` (Leave as root)
+   - **Build Command:** `npm run build` (or leave default, configured in `vercel.json`)
+   - **Output Directory:** `client/dist`
+5. In **Environment Variables**, add:
+   | Variable | Value | Notes |
+   | :--- | :--- | :--- |
+   | `MONGODB_URI` | `mongodb+srv://...` | Your MongoDB Atlas connection string |
+   | `AI_PROVIDER` | `gemini` | Configured AI provider |
+   | `AI_API_KEY` | `AQ.Ab8RN6...` | Your Google Gemini API Key |
+   | `AI_MODEL` | `gemini-3.8-flash` | Selected Gemini model |
+   | `NODE_ENV` | `production` | Production mode |
+6. Click **"Deploy"**.
+7. Vercel will build the React SPA to `client/dist` and mount `/api/*` to the serverless Express function. Once deployed, visit your `https://your-project.vercel.app` URL!
+
+#### Method 2: Deploy via Vercel CLI
+From your terminal in the project root:
+```bash
+# 1. Install Vercel CLI (if not already installed)
+npm install -g vercel
+
+# 2. Deploy to preview
+vercel
+
+# 3. Add environment variables
+vercel env add MONGODB_URI
+vercel env add AI_PROVIDER
+vercel env add AI_API_KEY
+vercel env add AI_MODEL
+
+# 4. Deploy to production
+vercel --prod
+```
+
+---
+
+### Option B: Unified Node.js Container Deployment (Render / Railway / Fly.io / Heroku)
 1. In `package.json`, the build and start scripts build both client and server:
    ```bash
    npm run build
