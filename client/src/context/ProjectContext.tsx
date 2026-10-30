@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { IProject } from '../types/shared';
 
@@ -14,38 +15,32 @@ interface ProjectContextType {
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [projects, setProjects] = useState<IProject[]>([]);
   const [selectedProjectId, setSelectedProjectIdState] = useState<string | null>(() => {
     return localStorage.getItem('contextos_selected_project') || null;
   });
-  const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProjects = async () => {
-    try {
-      setIsLoading(true);
-      const data = await api.get<IProject[]>('/projects');
-      setProjects(data);
+  const {
+    data: projects = [],
+    isLoading,
+    refetch
+  } = useQuery<IProject[]>({
+    queryKey: ['projects'],
+    queryFn: () => api.get<IProject[]>('/projects'),
+    refetchOnWindowFocus: true,
+    staleTime: 10000,
+    retry: 3
+  });
 
-      // If no project selected yet or selected project no longer exists, select first
-      if (data.length > 0) {
-        if (!selectedProjectId || !data.some((p) => p._id === selectedProjectId)) {
-          setSelectedProjectIdState(data[0]._id);
-          localStorage.setItem('contextos_selected_project', data[0]._id);
-        }
-      } else {
-        setSelectedProjectIdState(null);
-        localStorage.removeItem('contextos_selected_project');
-      }
-    } catch (err) {
-      console.error('Failed to load projects:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Automatically select first project if none selected or selected project was deleted
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    if (projects.length > 0) {
+      if (!selectedProjectId || !projects.some((p) => p._id === selectedProjectId)) {
+        const defaultId = projects[0]._id;
+        setSelectedProjectIdState(defaultId);
+        localStorage.setItem('contextos_selected_project', defaultId);
+      }
+    }
+  }, [projects, selectedProjectId]);
 
   const setSelectedProjectId = (id: string | null) => {
     setSelectedProjectIdState(id);
@@ -58,6 +53,10 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const selectedProject = projects.find((p) => p._id === selectedProjectId) || null;
 
+  const refreshProjects = async () => {
+    await refetch();
+  };
+
   return (
     <ProjectContext.Provider
       value={{
@@ -65,7 +64,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
         selectedProjectId,
         selectedProject,
         setSelectedProjectId,
-        refreshProjects: fetchProjects,
+        refreshProjects,
         isLoading
       }}
     >

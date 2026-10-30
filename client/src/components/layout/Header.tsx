@@ -19,7 +19,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu, onOpenAddKnowledge }) => {
-  const { projects, selectedProjectId, selectedProject, setSelectedProjectId, refreshProjects } = useProject();
+  const { projects, selectedProjectId, selectedProject, setSelectedProjectId, refreshProjects, isLoading } = useProject();
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedSuccess, setSeedSuccess] = useState(false);
 
@@ -57,7 +57,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu, onOpenAddKno
             onChange={(e) => setSelectedProjectId(e.target.value || null)}
             className="text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 max-w-[200px] sm:max-w-[280px] truncate"
           >
-            {projects.length === 0 ? (
+            {isLoading && projects.length === 0 ? (
+              <option value="">Loading projects...</option>
+            ) : projects.length === 0 ? (
               <option value="">No projects available</option>
             ) : (
               projects.map((p) => (
