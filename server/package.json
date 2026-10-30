@@ -1,0 +1,41 @@
+{
+  "name": "contextos-server",
+  "version": "1.0.0",
+  "description": "Backend API for ContextOS",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "seed": "node dist/scripts/seed.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "mammoth": "^1.8.0",
+    "mongoose": "^8.5.2",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1",
+    "pino": "^9.3.2",
+    "pino-pretty": "^11.2.2",
+    "uuid": "^10.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.14.12",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
+    "supertest": "^7.0.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}
