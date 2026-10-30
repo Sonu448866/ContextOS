@@ -53,8 +53,9 @@ export const createApp = (): express.Application => {
   app.use(requestIdMiddleware);
   app.use(requestLoggerMiddleware);
 
-  // 5. REST API Routes mounted under /api
+  // 5. REST API Routes mounted under both /api and root (to handle direct or rewritten serverless invocations)
   app.use('/api', apiRoutes);
+  app.use(apiRoutes);
 
   // 6. Production Static Assets (Serve client SPA build if present)
   const clientDist = path.resolve(__dirname, '../../client/dist');

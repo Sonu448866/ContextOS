@@ -1,9 +1,9 @@
-const { createApp } = require('../server/dist/app');
-const { connectDatabase } = require('../server/dist/config/database');
+import { createApp } from '../server/src/app';
+import { connectDatabase } from '../server/src/config/database';
 
-let appInstance = null;
+let appInstance: any = null;
 
-module.exports = async (req, res) => {
+export default async function handler(req: any, res: any) {
   try {
     await connectDatabase();
   } catch (err) {
@@ -15,4 +15,4 @@ module.exports = async (req, res) => {
   }
 
   return appInstance(req, res);
-};
+}

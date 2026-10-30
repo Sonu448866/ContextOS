@@ -5,34 +5,53 @@ import { logger } from './logger';
 let isConnected = false;
 let reconnectTimer: NodeJS.Timeout | null = null;
 
-export const connectDatabase = async (retries = 3, delayMs = 3000): Promise<boolean> => {
+// Global connection cache across serverless function invocations
+let cached = (global as any).mongoose;
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
+
+export const connectDatabase = async (retries = 2, delayMs = 1500): Promise<boolean> => {
+  // If already connected in Mongoose
   if (mongoose.connection.readyState === 1) {
     isConnected = true;
     return true;
   }
 
-  for (let attempt = 1; attempt <= retries; attempt++) {
+  // If serverless cached connection exists
+  if (cached.conn) {
+    isConnected = true;
+    return true;
+  }
+
+  const isServerless = !!process.env.VERCEL;
+
+  for (let attempt = 1; attempt <= (isServerless ? 1 : retries); attempt++) {
     try {
       mongoose.set('strictQuery', true);
-      await mongoose.connect(env.MONGODB_URI, {
-        serverSelectionTimeoutMS: 8000,
-        connectTimeoutMS: 15000,
+      const conn = await mongoose.connect(env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 8000,
+        bufferCommands: false, // Fail immediately rather than hanging indefinitely
       });
 
+      cached.conn = conn;
       isConnected = true;
       logger.info({ uri: env.MONGODB_URI.replace(/\/\/[^@]+@/, '//***@') }, 'Connected to MongoDB Atlas/Database successfully');
       return true;
     } catch (error) {
       isConnected = false;
+      cached.conn = null;
+      cached.promise = null;
       logger.warn({ attempt, retries, err: (error as Error).message }, 'Failed to connect to MongoDB');
-      if (attempt < retries) {
+      if (attempt < retries && !isServerless) {
         await new Promise((r) => setTimeout(r, delayMs));
       }
     }
   }
 
-  // Schedule background reconnect attempt if initial connection fails
-  if (!reconnectTimer) {
+  // Schedule background reconnect attempt ONLY in persistent server mode (NOT serverless)
+  if (!isServerless && !reconnectTimer) {
     reconnectTimer = setInterval(async () => {
       if (mongoose.connection.readyState !== 1) {
         try {
