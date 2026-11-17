@@ -106,6 +106,51 @@ export const OverviewPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Evaluator / Resume Interactive Tour Guide */}
+      <div className="p-4 rounded-xl bg-slate-900 text-slate-300 shadow-sm border border-slate-800 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+              Resume Portfolio Tour & Flow Guide
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono hidden md:inline">
+              (Live Scenario: E-commerce Continuity & Razorpay Blocker)
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-400 font-mono">
+            Follow the 5-step flow below:
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 font-sans">
+          <div className="p-2.5 rounded-lg bg-slate-800/90 border border-slate-700/80 text-xs text-white font-medium flex items-center gap-2">
+            <span className="w-5 h-5 rounded bg-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">1</span>
+            <span>Workspace Health</span>
+          </div>
+
+          <Link to="/knowledge" className="p-2.5 rounded-lg bg-slate-800/40 hover:bg-slate-800 border border-slate-700/40 text-xs text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+            <span className="w-5 h-5 rounded bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-300">2</span>
+            <span>Qdrant Vectors</span>
+          </Link>
+
+          <Link to="/ask" className="p-2.5 rounded-lg bg-slate-800/40 hover:bg-slate-800 border border-slate-700/40 text-xs text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+            <span className="w-5 h-5 rounded bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-300">3</span>
+            <span>RAG & Triad Eval</span>
+          </Link>
+
+          <Link to="/context-gaps" className="p-2.5 rounded-lg bg-slate-800/40 hover:bg-slate-800 border border-slate-700/40 text-xs text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+            <span className="w-5 h-5 rounded bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-300">4</span>
+            <span>Gap Detector</span>
+          </Link>
+
+          <Link to="/context-transfer" className="p-2.5 rounded-lg bg-slate-800/40 hover:bg-slate-800 border border-slate-700/40 text-xs text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+            <span className="w-5 h-5 rounded bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-300">5</span>
+            <span>17-Part Handover</span>
+          </Link>
+        </div>
+      </div>
+
       {/* Project Health Status Card */}
       <div
         className={`rounded-xl border p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${

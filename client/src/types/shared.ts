@@ -279,6 +279,20 @@ export interface VectorSearchMetadata {
   matches: QdrantVectorMatch[];
 }
 
+export interface RagEvaluationMetrics {
+  faithfulnessScore: number;
+  answerRelevanceScore: number;
+  contextPrecisionScore: number;
+  semanticCoverageScore: number;
+  totalLatencyMs: number;
+  embeddingLatencyMs: number;
+  vectorRetrievalLatencyMs: number;
+  llmInferenceLatencyMs: number;
+  estimatedTokens: number;
+  tokensPerSecond: number;
+  evaluationVerdict: 'Optimal' | 'High Quality' | 'Acceptable' | 'Needs Review';
+}
+
 export interface AIQuestionAnswer {
   answer: string;
   citations: Array<{ sourceId: string; sourceTitle: string; excerpt: string }>;
@@ -286,6 +300,7 @@ export interface AIQuestionAnswer {
   conflictsDetected?: string[];
   confidenceScore?: number;
   vectorSearchMetadata?: VectorSearchMetadata;
+  ragEvaluation?: RagEvaluationMetrics;
 }
 
 export interface DashboardSummary {
