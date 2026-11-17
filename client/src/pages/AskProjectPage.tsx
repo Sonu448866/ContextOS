@@ -1,373 +1,318 @@
 import React, { useState } from 'react';
-import { api } from '../lib/api';
 import { useProject } from '../context/ProjectContext';
+import { api } from '../lib/api';
 import { AIQuestionAnswer } from '../types/shared';
-import { Card } from '../components/ui/Card';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import {
   MessageSquareCode,
-  Sparkles,
-  BookOpen,
-  AlertTriangle,
-  HelpCircle,
+  Send,
+  Database,
   CheckCircle2,
-  Lightbulb,
+  AlertCircle,
+  FileText,
+  User,
   Copy,
   Check,
-  Database,
-  Cpu,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
-  Layers
+  Cpu,
+  Layers,
+  Search,
+  ExternalLink
 } from 'lucide-react';
-import { cn } from '../lib/utils';
 
 export const AskProjectPage: React.FC = () => {
   const { selectedProjectId, selectedProject } = useProject();
-
   const [question, setQuestion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<AIQuestionAnswer | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<AIQuestionAnswer | null>(null);
+  const [showChunks, setShowChunks] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showVectorChunks, setShowVectorChunks] = useState(false);
 
   const suggestedQuestions = [
-    'Why is checkout testing delayed?',
-    'What decisions have been made about the payment integration?',
-    'Which tasks are blocked and what are their dependencies?',
-    'Who is responsible for the webhook verification?',
-    'What does an incoming engineer need to know before taking over payments?'
+    'Why is checkout testing blocked and what is the status of Razorpay?',
+    'Who is responsible for the payment integration and what are their open tasks?',
+    'What architectural decisions were made regarding payment gateways?',
+    'What continuity risks exist if Rahul leaves the project?'
   ];
 
-  const handleAsk = async (qText?: string) => {
-    const query = qText || question;
-    if (!query.trim() || !selectedProjectId) return;
+  const handleAsk = async (queryText?: string) => {
+    const q = queryText || question;
+    if (!q.trim() || !selectedProjectId) return;
 
     try {
       setIsLoading(true);
       setError(null);
       setResult(null);
 
-      const data = await api.post<AIQuestionAnswer>(`/projects/${selectedProjectId}/ask`, {
-        question: query.trim()
-      });
+      const response = await api.post<AIQuestionAnswer>(
+        `/projects/${selectedProjectId}/ask`,
+        { question: q }
+      );
 
-      setResult(data);
-      if (qText) setQuestion(qText);
+      setResult(response);
     } catch (err: any) {
-      setError(err.message || 'Failed to retrieve project answer');
+      setError(err.message || 'Failed to generate answer from project knowledge.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCopy = () => {
-    if (!result?.answer) return;
-    navigator.clipboard.writeText(result.answer);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       handleAsk();
     }
   };
 
-  return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0B0F19] via-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-xl border border-slate-800">
-        <div className="absolute top-0 right-0 -mr-12 -mt-12 w-64 h-64 rounded-full bg-gradient-to-br from-indigo-500/20 to-cyan-500/0 blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold border border-indigo-500/30 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Semantic RAG Engine</span>
-              <span className="text-slate-400">•</span>
-              <span className="text-cyan-300">Qdrant Cloud + Groq LPU</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-sans">
-              Ask Your Project
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              Query architecture decisions, unwritten context, meeting updates, and blocked tasks for{' '}
-              <strong className="text-white underline decoration-indigo-400/50 underline-offset-4">
-                {selectedProject?.name || 'Current Project'}
-              </strong>.
-            </p>
-          </div>
+  const copyToClipboard = () => {
+    if (!result?.answer) return;
+    navigator.clipboard.writeText(result.answer);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
-          <div className="flex sm:flex-col gap-2 shrink-0">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-[11px] font-mono text-cyan-300">
-              <Database className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Qdrant 384-Dim RAG</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-[11px] font-mono text-indigo-300">
-              <Cpu className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Groq GPT-OSS-20B</span>
-            </div>
-          </div>
+  return (
+    <div className="space-y-6 max-w-5xl mx-auto pb-16">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[10px] font-mono uppercase font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+            Semantic Vector RAG
+          </span>
+          <span className="text-xs text-slate-400">•</span>
+          <span className="text-xs text-slate-500 font-mono">
+            SentenceTransformers + Qdrant Cloud
+          </span>
         </div>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+          <MessageSquareCode className="w-6 h-6 text-indigo-600" />
+          <span>Ask Your Project AI</span>
+        </h1>
+        <p className="text-xs text-slate-500 mt-0.5">
+          Queries project documents, ADRs, tasks, and meeting notes using 384-dimensional dense vector embeddings with Groq inference.
+        </p>
       </div>
 
-      {/* Query Input Card */}
-      <Card className="p-5 sm:p-6 space-y-4 shadow-sm border-slate-200/80 bg-white/90 backdrop-blur-sm">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleAsk();
-          }}
-          className="space-y-3"
-        >
+      {/* Query Input Box */}
+      <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+        <CardContent className="p-4 sm:p-5 space-y-3">
           <div className="relative">
             <textarea
-              rows={3}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask anything about this project (e.g. Why is checkout testing blocked? What was decided about Razorpay?)..."
-              className="w-full text-sm bg-slate-50/80 border border-slate-200 rounded-xl p-4 pr-32 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all resize-none font-sans"
-              required
+              placeholder="Ask any question about blockers, commitments, decisions, or ownership... (e.g. 'Why is checkout testing blocked?')"
+              rows={3}
+              className="w-full text-xs sm:text-sm bg-slate-50/80 border border-slate-200 rounded-lg p-3.5 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 resize-none font-sans"
             />
-            <div className="absolute right-3.5 bottom-3.5 flex items-center gap-2">
-              <span className="hidden sm:inline-block text-[10px] text-slate-500 font-mono bg-slate-200/60 px-1.5 py-0.5 rounded">
-                Ctrl + ↵
-              </span>
-              <Button
-                type="submit"
-                variant="primary"
-                size="sm"
-                isLoading={isLoading}
-                disabled={!question.trim() || !selectedProjectId}
-                className="gap-1.5 bg-gradient-to-r from-indigo-600 to-brand-600 hover:from-indigo-700 hover:to-brand-700 shadow-md shadow-indigo-500/20 text-white font-semibold"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Search RAG</span>
-              </Button>
-            </div>
           </div>
-        </form>
 
-        {/* Suggested Queries */}
-        <div className="space-y-2 pt-1 border-t border-slate-100">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-            <span>Recommended Research Prompts</span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[11px] text-slate-400 font-medium">Suggestions:</span>
+              {suggestedQuestions.map((sq, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setQuestion(sq);
+                    handleAsk(sq);
+                  }}
+                  className="text-[11px] px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border border-slate-200/60 truncate max-w-[280px]"
+                  title={sq}
+                >
+                  {sq}
+                </button>
+              ))}
+            </div>
+
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleAsk()}
+              isLoading={isLoading}
+              disabled={!question.trim()}
+              className="text-xs gap-1.5 bg-slate-900 hover:bg-slate-800 text-white shrink-0 self-end sm:self-auto px-4 py-2"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Ask Project</span>
+              <kbd className="hidden md:inline-block ml-1 px-1.5 py-0.2 text-[9px] font-mono bg-slate-800 text-slate-300 rounded border border-slate-700">
+                Ctrl+Enter
+              </kbd>
+            </Button>
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {suggestedQuestions.map((q, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleAsk(q)}
-                className="text-xs px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 text-slate-600 border border-slate-200/80 transition-all text-left shadow-2xs font-medium"
-              >
-                &ldquo;{q}&rdquo;
-              </button>
-            ))}
-          </div>
-        </div>
+        </CardContent>
       </Card>
 
-      {/* Error state */}
+      {/* Error View */}
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2.5 shadow-xs">
-          <AlertTriangle className="w-4 h-4 shrink-0" />
-          <span>{error}</span>
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => setError(null)} className="text-xs">
+            Dismiss
+          </Button>
         </div>
       )}
 
-      {/* Loading state */}
+      {/* Loading State */}
       {isLoading && (
-        <Card className="p-12 text-center border-slate-200 bg-white/80">
-          <LoadingSpinner size="lg" label="Searching Qdrant vector space & synthesizing grounded answer via Groq LPU..." />
+        <Card className="p-12 text-center border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3">
+          <LoadingSpinner size="lg" className="mx-auto" />
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-slate-800">
+              Retrieving 384-dimensional vector embeddings from Qdrant Cloud...
+            </p>
+            <p className="text-[11px] text-slate-400 font-mono">
+              Embedding with SentenceTransformers (all-MiniLM-L6-v2) • Synthesizing with Groq LPU
+            </p>
+          </div>
         </Card>
       )}
 
-      {/* Answer Display */}
+      {/* Synthesized Answer View */}
       {result && (
         <div className="space-y-4">
-          {/* RAG Vector Retrieval Status Banner */}
+          {/* RAG Telemetry Bar */}
           {result.vectorSearchMetadata && (
-            <div className="p-4 rounded-xl bg-gradient-to-r from-cyan-50/80 via-indigo-50/40 to-slate-50 border border-cyan-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-3.5 rounded-xl bg-white border border-slate-200/90 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-cyan-600 text-white flex items-center justify-center shadow-sm">
-                  <Database className="w-4 h-4" />
+                <div className="w-7 h-7 rounded bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600">
+                  <Database className="w-3.5 h-3.5" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-900 font-sans">
-                      Qdrant Semantic Vector Retrieval
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      Top Match: {result.vectorSearchMetadata.topScore}%
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-600 mt-0.5">
-                    Retrieved{' '}
-                    <strong className="text-slate-900 font-semibold">
-                      {result.vectorSearchMetadata.chunksRetrieved} semantic chunks
-                    </strong>{' '}
-                    from collection <code className="font-mono text-cyan-800 bg-cyan-100/60 px-1 py-0.5 rounded text-[10px]">{result.vectorSearchMetadata.collection}</code> in{' '}
-                    <span className="font-mono font-medium">{result.vectorSearchMetadata.queryLatencyMs}ms</span>.
-                  </p>
+                <div className="flex items-center gap-2 flex-wrap font-mono text-[11px]">
+                  <span className="font-semibold text-slate-800">Qdrant Cloud RAG</span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-slate-600">Retrieved: {result.vectorSearchMetadata.chunksRetrieved} Chunks</span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-slate-600">Top Cosine Match: <strong className="text-indigo-600">{result.vectorSearchMetadata.topScore}%</strong></span>
                 </div>
               </div>
 
-              {result.vectorSearchMetadata.matches.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowVectorChunks(!showVectorChunks)}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-cyan-800 hover:text-cyan-900 bg-white/80 px-3 py-1.5 rounded-lg border border-cyan-200 hover:bg-white transition-all shadow-2xs self-start sm:self-auto cursor-pointer"
-                >
-                  <Layers className="w-3.5 h-3.5 text-cyan-600" />
-                  <span>{showVectorChunks ? 'Hide Chunks' : 'Inspect Vector Chunks'}</span>
-                  {showVectorChunks ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-              )}
+              <button
+                onClick={() => setShowChunks(!showChunks)}
+                className="flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-700 font-medium self-end sm:self-auto cursor-pointer"
+              >
+                <span>{showChunks ? 'Hide Vector Chunks' : 'Inspect Retrieved Chunks'}</span>
+                {showChunks ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
             </div>
           )}
 
-          {/* Expandable Qdrant Chunks Accordion */}
-          {showVectorChunks && result.vectorSearchMetadata && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 bg-slate-100/70 rounded-xl border border-slate-200">
-              {result.vectorSearchMetadata.matches.map((chunk, idx) => (
-                <div key={idx} className="p-3.5 bg-white rounded-lg border border-slate-200/80 shadow-xs space-y-2">
-                  <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-slate-800 truncate max-w-[200px]">{chunk.sourceTitle}</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">
-                      Similarity: {chunk.score}%
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-600 line-clamp-3 leading-relaxed font-sans bg-slate-50 p-2 rounded border border-slate-100">
-                    &ldquo;{chunk.text}&rdquo;
-                  </p>
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                    <span>Type: {chunk.sourceType}</span>
-                    <span>Author: {chunk.author || 'Team'}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Answer Card */}
-          <Card className="space-y-6 p-6 sm:p-7 border-slate-200 shadow-sm bg-white">
-            {/* Answer Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-brand-500 text-white flex items-center justify-center shadow-sm">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 font-sans">
-                    Grounded Project Synthesis
-                  </h3>
-                  <p className="text-[10px] text-slate-500 font-mono">Engine: Groq LPU (GPT-OSS-20B)</p>
-                </div>
+          {/* Expandable Retrieved Vector Chunks */}
+          {showChunks && result.vectorSearchMetadata?.matches && (
+            <Card className="border-indigo-200 bg-slate-50/50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider font-mono">
+                  Qdrant Vector Chunks Retrieved ({result.vectorSearchMetadata.matches.length})
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  Collection: {result.vectorSearchMetadata.collection}
+                </span>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {result.vectorSearchMetadata.matches.map((chunk: any, idx: number) => (
+                  <div key={idx} className="p-3 bg-white rounded-lg border border-slate-200 text-xs space-y-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-slate-900 truncate text-[11px]">
+                        {chunk.sourceTitle}
+                      </span>
+                      <span className="font-mono text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">
+                        {chunk.score}% match
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-slate-600 leading-relaxed font-mono line-clamp-3 bg-slate-50 p-2 rounded border border-slate-100">
+                      &ldquo;{chunk.text}&rdquo;
+                    </p>
+
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+                      <span>Author: {chunk.author || 'Team Member'}</span>
+                      <span className="font-mono">{chunk.sourceType}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Answer Content Card */}
+          <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-800">Verified Answer</span>
                 {result.confidenceScore && (
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    Confidence: {(result.confidenceScore * 100).toFixed(0)}%
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+                    Confidence: {result.confidenceScore}%
                   </span>
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopy}
-                  className="text-xs gap-1.5 h-8 border-slate-200 text-slate-700 hover:bg-slate-50"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {/* Answer Body */}
-            <div className="text-sm text-slate-800 leading-relaxed font-sans">
-              <div className="p-5 bg-slate-50/80 rounded-xl border border-slate-200/80 whitespace-pre-wrap leading-relaxed shadow-2xs font-sans text-slate-900">
-                {result.answer}
-              </div>
-            </div>
-
-            {/* Uncertainty / Missing Evidence Notes */}
-            {result.uncertaintyNotes && (
-              <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-xl text-xs text-amber-950 space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-amber-900">
-                  <HelpCircle className="w-4 h-4 text-amber-600" />
-                  <span>Identified Uncertainty & Missing Evidence</span>
-                </div>
-                <p className="leading-relaxed opacity-90">{result.uncertaintyNotes}</p>
-              </div>
-            )}
-
-            {/* Detected Conflicts */}
-            {result.conflictsDetected && result.conflictsDetected.length > 0 && (
-              <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-900 space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-rose-800">
-                  <AlertTriangle className="w-4 h-4 text-rose-600" />
-                  <span>Contradictions Discovered Across Sources</span>
-                </div>
-                <ul className="list-disc list-inside space-y-0.5">
-                  {result.conflictsDetected.map((c, i) => (
-                    <li key={i}>{c}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Citations & Traceability */}
-            <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">
-                <BookOpen className="w-4 h-4 text-indigo-600" />
-                <span>Supporting Source Citations ({result.citations.length})</span>
               </div>
 
-              {result.citations.length === 0 ? (
-                <p className="text-xs text-slate-400 italic">No direct source excerpts cited.</p>
-              ) : (
-                <div className="grid grid-cols-1 gap-2.5">
-                  {result.citations.map((cite, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3.5 rounded-xl bg-slate-50/90 border border-slate-200 text-xs space-y-1.5 hover:border-indigo-200 transition-colors shadow-2xs"
-                    >
-                      <div className="flex items-center justify-between font-bold text-slate-900">
-                        <span className="flex items-center gap-1.5">
-                          <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
-                          {cite.sourceTitle}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          ID: {cite.sourceId}
-                        </span>
-                      </div>
-                      {cite.excerpt && (
-                        <p className="text-[11px] text-slate-700 italic font-mono leading-relaxed bg-white p-2.5 rounded-lg border border-slate-200/70">
-                          &ldquo;{cite.excerpt}&rdquo;
-                        </p>
-                      )}
-                    </div>
-                  ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={copyToClipboard}
+                className="text-xs gap-1 border-slate-200 hover:bg-slate-50"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+                <span>{copied ? 'Copied' : 'Copy'}</span>
+              </Button>
+            </CardHeader>
+
+            <CardContent className="pt-4 space-y-4">
+              {/* Formatted Markdown Body */}
+              <div className="space-y-3 text-xs sm:text-sm leading-relaxed text-slate-800 font-sans">
+                {result.answer.split('\n\n').map((paragraph: string, pIdx: number) => (
+                  <p key={pIdx} className="leading-relaxed whitespace-pre-wrap">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+
+              {/* Uncertainty Notes */}
+              {result.uncertaintyNotes && (
+                <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-lg text-xs text-amber-900 space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Continuity / Missing Information Note</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed">{result.uncertaintyNotes}</p>
                 </div>
               )}
-            </div>
+
+              {/* Citations Grid */}
+              {result.citations && result.citations.length > 0 && (
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                    Grounded Document Citations ({result.citations.length})
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {result.citations.map((cite: any, i: number) => (
+                      <div key={i} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-xs space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-slate-900 truncate">
+                            {cite.sourceTitle}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            ID: {cite.sourceId.substring(cite.sourceId.length - 6)}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 italic line-clamp-2">
+                          &ldquo;{cite.excerpt}&rdquo;
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
           </Card>
         </div>
       )}

@@ -19,15 +19,11 @@ import {
   Filter,
   Check,
   Eye,
-  Ban,
-  ArrowRight,
-  ShieldCheck,
-  Cpu,
-  Layers
+  ArrowRight
 } from 'lucide-react';
 
 export const ContextGapDetectorPage: React.FC = () => {
-  const { selectedProjectId, selectedProject } = useProject();
+  const { selectedProjectId } = useProject();
   const queryClient = useQueryClient();
 
   const [selectedGap, setSelectedGap] = useState<IContextGap | null>(null);
@@ -77,21 +73,21 @@ export const ContextGapDetectorPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-600 border border-rose-500/20">
+            <span className="text-[10px] font-mono uppercase font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
               Continuity Safeguard
             </span>
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <ShieldAlert className="w-6 h-6 text-rose-600" />
             <span>Context Gap & Contradiction Detector</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Deterministic rule validation and Groq LPU cross-document contradiction detection.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Combines deterministic validation rules with Groq LPU cross-document contradiction checks.
           </p>
         </div>
 
@@ -100,32 +96,31 @@ export const ContextGapDetectorPage: React.FC = () => {
           size="sm"
           onClick={handleRunAnalysis}
           isLoading={isAnalyzing}
-          className="gap-2 self-start sm:self-auto bg-slate-900 hover:bg-slate-800 text-white shadow-md shadow-slate-900/10"
+          className="gap-1.5 self-start sm:self-auto bg-slate-900 hover:bg-slate-800 text-white text-xs px-3.5 py-2"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           <span>Run Gap Analysis</span>
         </Button>
       </div>
 
-      {/* Information Banner */}
-      <div className="p-5 bg-gradient-to-r from-slate-50 via-white to-slate-50 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-        <p className="text-xs font-bold text-slate-800">
-          How ContextOS detects missing information and continuity risks:
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs text-slate-600">
-          <div className="p-3 rounded-xl bg-white border border-slate-200/70">
-            <span className="font-bold text-indigo-700 block mb-1">⚡ Deterministic Rule Engine</span>
+      {/* Explanation Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div className="p-3.5 bg-white rounded-xl border border-slate-200/90 shadow-[0_1px_2px_rgba(0,0,0,0.02)] space-y-1">
+          <span className="font-bold text-slate-900 block text-xs">⚡ Deterministic Rule Engine</span>
+          <p className="text-slate-500 leading-relaxed text-[11px]">
             Flags unassigned responsibilities, unrecorded blocker reasons, expired deadlines, and decisions missing documented rationales.
-          </div>
-          <div className="p-3 rounded-xl bg-white border border-slate-200/70">
-            <span className="font-bold text-purple-700 block mb-1">🧠 Groq LPU Contradiction Cross-Checker</span>
-            Cross-compares claims between documents (e.g. document claiming feature is done vs. testing note reporting it blocked).
-          </div>
+          </p>
+        </div>
+        <div className="p-3.5 bg-white rounded-xl border border-slate-200/90 shadow-[0_1px_2px_rgba(0,0,0,0.02)] space-y-1">
+          <span className="font-bold text-slate-900 block text-xs">🧠 Groq Cross-Document Contradiction Analyzer</span>
+          <p className="text-slate-500 leading-relaxed text-[11px]">
+            Cross-checks conflicting statements between documents (e.g. document claiming feature is done vs. testing update reporting it blocked).
+          </p>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs">
+      {/* Filters Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200/90 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           <span className="text-xs text-slate-400 flex items-center gap-1 mr-1">
             <Filter className="w-3.5 h-3.5" /> Status:
@@ -134,9 +129,9 @@ export const ContextGapDetectorPage: React.FC = () => {
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`text-[11px] font-medium px-3 py-1 rounded-lg transition-all ${
+              className={`text-[11px] font-medium px-2.5 py-1 rounded transition-colors ${
                 statusFilter === st
-                  ? 'bg-slate-900 text-white font-semibold shadow-xs'
+                  ? 'bg-slate-900 text-white font-semibold'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
               }`}
             >
@@ -150,7 +145,7 @@ export const ContextGapDetectorPage: React.FC = () => {
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none font-medium text-slate-700"
+            className="text-xs bg-slate-50 border border-slate-200 rounded px-2.5 py-1 focus:outline-none font-medium text-slate-700"
           >
             <option value="ALL">All Severities</option>
             <option value="Critical">Critical</option>
@@ -165,57 +160,57 @@ export const ContextGapDetectorPage: React.FC = () => {
       {isLoading ? (
         <LoadingSpinner label="Auditing project continuity..." className="h-64" />
       ) : gaps.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-slate-200">
-          <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-800">No context gaps found</h3>
-          <p className="text-xs text-slate-500 mt-1 mb-4">
+        <div className="p-12 text-center bg-white rounded-xl border border-dashed border-slate-200">
+          <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+          <h3 className="text-sm font-semibold text-slate-800">No context gaps found</h3>
+          <p className="text-xs text-slate-500 mt-0.5 mb-4">
             All tasks have confirmed owners, deadlines, rationale, and no contradictory statements were detected.
           </p>
-          <Button variant="outline" size="sm" onClick={handleRunAnalysis}>
+          <Button variant="outline" size="sm" onClick={handleRunAnalysis} className="text-xs">
             Run Analysis Again
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {gaps.map((gap) => (
             <Card
               key={gap._id}
               onClick={() => setSelectedGap(gap)}
-              className="p-5 hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer space-y-3.5 border-slate-200"
+              className="p-4 hover:border-slate-300 transition-colors cursor-pointer space-y-3 border-slate-200/90 shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <SeverityBadge severity={gap.severity} />
                   <GapStatusBadge status={gap.status} />
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
                     {gap.gapType} ({gap.detectionMethod})
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-medium">
+                <span className="text-[10px] text-slate-400 font-mono">
                   Detected {timeAgo(gap.detectedAt)}
                 </span>
               </div>
 
               <div>
-                <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">{gap.description}</h3>
+                <h3 className="text-sm font-bold text-slate-900 leading-snug">{gap.description}</h3>
 
                 {gap.evidence && (
-                  <p className="text-xs text-slate-600 italic mt-2 font-mono bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <p className="text-xs text-slate-600 italic mt-1.5 font-mono bg-slate-50 p-2.5 rounded border border-slate-200/80">
                     Evidence: &ldquo;{gap.evidence}&rdquo;
                   </p>
                 )}
               </div>
 
-              <div className="p-3 bg-indigo-50/60 border border-indigo-200/80 rounded-xl text-xs text-indigo-950 font-medium flex items-center justify-between gap-2">
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 font-medium flex items-center justify-between gap-2">
                 <span>
-                  <strong className="text-indigo-900">Recommended Resolution:</strong> {gap.recommendedResolution}
+                  <strong>Recommended:</strong> {gap.recommendedResolution}
                 </span>
               </div>
 
               {/* Action Buttons */}
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
-                <span className="text-xs text-indigo-600 font-semibold flex items-center gap-1 hover:text-indigo-700">
-                  <span>View Details & Resolution Plan</span>
+                <span className="text-xs text-indigo-600 font-medium flex items-center gap-1 hover:text-indigo-700">
+                  <span>View Details & Evidence</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </span>
 
@@ -225,7 +220,7 @@ export const ContextGapDetectorPage: React.FC = () => {
                       variant="outline"
                       size="sm"
                       onClick={(e) => handleQuickResolve(e, gap._id, 'Acknowledged')}
-                      className="text-xs gap-1 bg-white hover:bg-slate-50 border-slate-200"
+                      className="text-xs gap-1 bg-white hover:bg-slate-50 border-slate-200 text-slate-700"
                     >
                       <Eye className="w-3.5 h-3.5 text-amber-600" />
                       <span>Acknowledge</span>
@@ -237,7 +232,7 @@ export const ContextGapDetectorPage: React.FC = () => {
                       variant="primary"
                       size="sm"
                       onClick={(e) => handleQuickResolve(e, gap._id, 'Resolved')}
-                      className="text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                      className="text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                     >
                       <Check className="w-3.5 h-3.5" />
                       <span>Mark Resolved</span>

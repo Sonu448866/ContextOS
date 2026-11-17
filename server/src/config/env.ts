@@ -23,8 +23,10 @@ const envSchema = z.object({
   QDRANT_URL: z.string().optional().default(''),
   QDRANT_API_KEY: z.string().optional().default(''),
   QDRANT_COLLECTION: z.string().default('knowledge'),
-  EMBEDDING_MODEL: z.string().default('gemini-embedding-001'),
+  EMBEDDING_PROVIDER: z.enum(['sentence_transformers', 'huggingface', 'gemini', 'fallback']).default('sentence_transformers'),
+  EMBEDDING_MODEL: z.string().default('all-MiniLM-L6-v2'),
   EMBEDDING_DIMENSION: z.coerce.number().default(384),
+  HUGGINGFACE_API_KEY: z.string().optional().default(''),
 
   // Logging & Observability
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),

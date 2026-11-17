@@ -18,7 +18,6 @@ import {
   UserX,
   ShieldAlert,
   ArrowRight,
-  Sparkles,
   ArrowRightLeft,
   MessageSquareCode,
   AlertTriangle,
@@ -26,8 +25,7 @@ import {
   Database,
   Cpu,
   Activity,
-  Layers,
-  TrendingUp
+  Plus
 } from 'lucide-react';
 import { ContextGapResolveModal } from '../features/ContextGapResolveModal';
 import { CreateTaskModal } from '../features/CreateTaskModal';
@@ -44,15 +42,15 @@ export const OverviewPage: React.FC = () => {
   });
 
   if (isLoading) {
-    return <LoadingSpinner size="lg" label="Calculating project context metrics..." className="h-96" />;
+    return <LoadingSpinner size="lg" label="Loading project overview..." className="h-96" />;
   }
 
   if (error || !summary) {
     return (
-      <div className="p-8 bg-rose-50/80 border border-rose-200/80 text-rose-800 rounded-2xl text-sm shadow-sm">
-        <div className="flex items-center gap-3">
-          <AlertOctagon className="w-5 h-5 text-rose-600" />
-          <span className="font-semibold">Failed to load dashboard metrics. Ensure MongoDB and ContextOS server are running.</span>
+      <div className="p-6 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs">
+        <div className="flex items-center gap-2">
+          <AlertOctagon className="w-4 h-4 text-rose-600 shrink-0" />
+          <span className="font-semibold">Unable to load dashboard data. Ensure the ContextOS server and database are running.</span>
         </div>
       </div>
     );
@@ -61,240 +59,192 @@ export const OverviewPage: React.FC = () => {
   const { projectHealth } = summary;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
-      {/* Hero Welcome & Quick Launch */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-xl shadow-slate-900/10 border border-slate-800">
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 -mb-8 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                <Database className="w-3 h-3 text-indigo-400" />
-                Qdrant Cloud RAG Active
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                <Cpu className="w-3 h-3 text-emerald-400" />
-                Groq LPU Engine
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-              {selectedProject ? selectedProject.name : 'ContextOS Intelligence Dashboard'}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Real-time organizational context, vector-indexed memory, semantic gap tracking, and automated 17-part handover orchestration.
-            </p>
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      {/* Executive Project Header */}
+      <div className="bg-white border border-slate-200/90 rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <span className="text-[10px] font-mono uppercase font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+              Workspace
+            </span>
+            <span className="text-xs text-slate-400">•</span>
+            <span className="text-xs text-slate-500 font-medium">
+              ID: <code className="font-mono text-slate-700">{selectedProject?._id || 'global'}</code>
+            </span>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-            <Link to="/ask">
-              <Button
-                variant="primary"
-                size="sm"
-                className="bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-0 text-xs gap-1.5 py-2 px-3.5"
-              >
-                <MessageSquareCode className="w-4 h-4" />
-                <span>Ask Project AI</span>
-              </Button>
-            </Link>
-            <Link to="/context-transfer">
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs gap-1.5 py-2 px-3.5"
-              >
-                <ArrowRightLeft className="w-4 h-4 text-purple-300" />
-                <span>Export Handover</span>
-              </Button>
-            </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCreateTaskOpen(true)}
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs gap-1.5 py-2 px-3.5"
-            >
-              <CheckSquare className="w-4 h-4 text-emerald-300" />
-              <span>New Task</span>
-            </Button>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            {selectedProject ? selectedProject.name : 'ContextOS Platform Overview'}
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5 max-w-3xl leading-relaxed">
+            {selectedProject?.description || 'Organizational memory, vector-indexed commitments, and automated handover continuity.'}
+          </p>
         </div>
-      </div>
 
-      {/* Project Health Banner */}
-      <div
-        className={`relative overflow-hidden rounded-2xl border p-5 sm:p-6 transition-all shadow-sm ${
-          projectHealth.status === 'Healthy'
-            ? 'bg-gradient-to-r from-emerald-50/90 via-emerald-50/50 to-white border-emerald-200/80 text-emerald-950'
-            : projectHealth.status === 'At Risk'
-            ? 'bg-gradient-to-r from-amber-50/90 via-amber-50/50 to-white border-amber-200/80 text-amber-950'
-            : 'bg-gradient-to-r from-rose-50/90 via-rose-50/50 to-white border-rose-200/80 text-rose-950'
-        }`}
-      >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="flex items-start sm:items-center gap-4">
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
-                projectHealth.status === 'Healthy'
-                  ? 'bg-emerald-500 text-white shadow-emerald-500/25'
-                  : projectHealth.status === 'At Risk'
-                  ? 'bg-amber-500 text-white shadow-amber-500/25'
-                  : 'bg-rose-500 text-white shadow-rose-500/25'
-              }`}
-            >
-              {projectHealth.status === 'Healthy' ? (
-                <CheckCircle2 className="w-8 h-8" />
-              ) : projectHealth.status === 'At Risk' ? (
-                <AlertTriangle className="w-8 h-8" />
-              ) : (
-                <AlertOctagon className="w-8 h-8" />
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <span className="text-base font-bold tracking-tight">Project Health: {projectHealth.status}</span>
-                <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-bold bg-white/90 shadow-xs border border-current">
-                  Score: {projectHealth.score}/100
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm opacity-90 font-medium leading-relaxed max-w-3xl">
-                {projectHealth.summary}
-              </p>
-            </div>
-          </div>
-
-          <Link to="/context-gaps" className="shrink-0 self-start md:self-center">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs bg-white hover:bg-slate-50 border-slate-300 font-semibold shadow-xs gap-1.5 py-2 px-3.5"
-            >
-              <span>Review {summary.criticalContextGaps} Critical Gaps</span>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
+          <Link to="/ask">
+            <Button variant="outline" size="sm" className="text-xs gap-1.5 bg-white border-slate-200 text-slate-700">
+              <MessageSquareCode className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Ask Project</span>
             </Button>
           </Link>
+          <Link to="/context-transfer">
+            <Button variant="outline" size="sm" className="text-xs gap-1.5 bg-white border-slate-200 text-slate-700">
+              <ArrowRightLeft className="w-3.5 h-3.5 text-slate-600" />
+              <span>Export Handover</span>
+            </Button>
+          </Link>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setCreateTaskOpen(true)}
+            className="text-xs gap-1.5 bg-slate-900 hover:bg-slate-800 text-white"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Task</span>
+          </Button>
         </div>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        {/* Active Projects */}
+      {/* Project Health Status Card */}
+      <div
+        className={`rounded-xl border p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+          projectHealth.status === 'Healthy'
+            ? 'bg-emerald-50/60 border-emerald-200 text-emerald-950'
+            : projectHealth.status === 'At Risk'
+            ? 'bg-amber-50/60 border-amber-200 text-amber-950'
+            : 'bg-rose-50/60 border-rose-200 text-rose-950'
+        }`}
+      >
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div
+            className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+              projectHealth.status === 'Healthy'
+                ? 'bg-emerald-100 text-emerald-700'
+                : projectHealth.status === 'At Risk'
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-rose-100 text-rose-700'
+            }`}
+          >
+            {projectHealth.status === 'Healthy' ? (
+              <CheckCircle2 className="w-5 h-5" />
+            ) : projectHealth.status === 'At Risk' ? (
+              <AlertTriangle className="w-5 h-5" />
+            ) : (
+              <AlertOctagon className="w-5 h-5" />
+            )}
+          </div>
+
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold tracking-tight">Project Health: {projectHealth.status}</span>
+              <span className="text-xs px-2 py-0.5 rounded font-mono font-semibold bg-white/90 border border-current">
+                {projectHealth.score}/100
+              </span>
+            </div>
+            <p className="text-xs opacity-90 leading-snug">{projectHealth.summary}</p>
+          </div>
+        </div>
+
+        <Link to="/context-gaps" className="shrink-0 self-start sm:self-center">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs bg-white hover:bg-slate-50 border-current font-medium gap-1"
+          >
+            <span>Review {summary.criticalContextGaps} Critical Gaps</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Button>
+        </Link>
+      </div>
+
+      {/* KPI Metric Cards Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <Link to="/projects" className="group block">
-          <Card className="h-full p-4 hover:shadow-md hover:border-slate-300 transition-all duration-200">
+          <Card className="h-full p-4 hover:border-slate-300 transition-colors border-slate-200/90 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                Workspaces
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-100 transition-colors">
-                <FolderKanban className="w-4 h-4" />
-              </div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Workspaces</span>
+              <FolderKanban className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
             </div>
-            <div className="text-2xl font-extrabold text-slate-900 tracking-tight">{summary.totalActiveProjects}</div>
-            <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1 font-medium">
-              <span>Active workspaces</span>
-            </div>
+            <div className="text-2xl font-bold text-slate-900 tracking-tight font-sans">{summary.totalActiveProjects}</div>
+            <div className="text-[11px] text-slate-400 mt-1 font-medium">Active projects</div>
           </Card>
         </Link>
 
-        {/* Knowledge Sources */}
         <Link to="/knowledge" className="group block">
-          <Card className="h-full p-4 hover:shadow-md hover:border-slate-300 transition-all duration-200">
+          <Card className="h-full p-4 hover:border-slate-300 transition-colors border-slate-200/90 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                Sources
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
-                <BookOpen className="w-4 h-4" />
-              </div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Knowledge</span>
+              <BookOpen className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
             </div>
-            <div className="text-2xl font-extrabold text-slate-900 tracking-tight">{summary.totalKnowledgeSources}</div>
-            <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1 font-medium">
-              <span>Qdrant indexed</span>
-            </div>
+            <div className="text-2xl font-bold text-slate-900 tracking-tight font-sans">{summary.totalKnowledgeSources}</div>
+            <div className="text-[11px] text-slate-400 mt-1 font-medium">Vectorized sources</div>
           </Card>
         </Link>
 
-        {/* Open Tasks */}
         <Link to="/tasks" className="group block">
-          <Card className="h-full p-4 hover:shadow-md hover:border-slate-300 transition-all duration-200">
+          <Card className="h-full p-4 hover:border-slate-300 transition-colors border-slate-200/90 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                Open Tasks
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
-                <CheckSquare className="w-4 h-4" />
-              </div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Open Tasks</span>
+              <CheckSquare className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
             </div>
-            <div className="text-2xl font-extrabold text-slate-900 tracking-tight">{summary.openTasks}</div>
-            <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1 font-medium">
-              <span>In progress & todo</span>
-            </div>
+            <div className="text-2xl font-bold text-slate-900 tracking-tight font-sans">{summary.openTasks}</div>
+            <div className="text-[11px] text-slate-400 mt-1 font-medium">Commitments</div>
           </Card>
         </Link>
 
-        {/* Blocked Tasks */}
         <Link to="/tasks?status=Blocked" className="group block">
-          <Card className="h-full p-4 hover:shadow-md transition-all duration-200 bg-rose-50/30 border-rose-200/80">
+          <Card className="h-full p-4 hover:border-rose-300 transition-colors bg-rose-50/20 border-rose-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             <div className="flex items-center justify-between text-rose-500 mb-2">
-              <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wider">Blocked</span>
-              <div className="w-7 h-7 rounded-lg bg-rose-100/80 flex items-center justify-center text-rose-700">
-                <AlertOctagon className="w-4 h-4" />
-              </div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-600">Blocked</span>
+              <AlertOctagon className="w-4 h-4 text-rose-600" />
             </div>
-            <div className="text-2xl font-extrabold text-rose-700 tracking-tight">{summary.blockedTasks}</div>
-            <div className="text-[10px] text-rose-600 font-medium mt-1">Requiring unblocking</div>
+            <div className="text-2xl font-bold text-rose-700 tracking-tight font-sans">{summary.blockedTasks}</div>
+            <div className="text-[11px] text-rose-600/90 mt-1 font-medium">Need unblocking</div>
           </Card>
         </Link>
 
-        {/* Missing Owners */}
         <Link to="/tasks" className="group block">
-          <Card className="h-full p-4 hover:shadow-md transition-all duration-200 bg-amber-50/30 border-amber-200/80">
+          <Card className="h-full p-4 hover:border-amber-300 transition-colors bg-amber-50/20 border-amber-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             <div className="flex items-center justify-between text-amber-500 mb-2">
-              <span className="text-[11px] font-bold text-amber-600 uppercase tracking-wider">Unassigned</span>
-              <div className="w-7 h-7 rounded-lg bg-amber-100/80 flex items-center justify-center text-amber-700">
-                <UserX className="w-4 h-4" />
-              </div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-600">Unassigned</span>
+              <UserX className="w-4 h-4 text-amber-600" />
             </div>
-            <div className="text-2xl font-extrabold text-amber-700 tracking-tight">{summary.tasksMissingOwners}</div>
-            <div className="text-[10px] text-amber-600 font-medium mt-1">Missing owners</div>
+            <div className="text-2xl font-bold text-amber-700 tracking-tight font-sans">{summary.tasksMissingOwners}</div>
+            <div className="text-[11px] text-amber-600/90 mt-1 font-medium">Missing owners</div>
           </Card>
         </Link>
 
-        {/* Critical Gaps */}
         <Link to="/context-gaps" className="group block">
-          <Card className="h-full p-4 hover:shadow-md transition-all duration-200 bg-red-50/40 border-red-200">
+          <Card className="h-full p-4 hover:border-red-300 transition-colors bg-red-50/30 border-red-200 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             <div className="flex items-center justify-between text-red-600 mb-2">
-              <span className="text-[11px] font-bold text-red-600 uppercase tracking-wider">Critical</span>
-              <div className="w-7 h-7 rounded-lg bg-red-100 flex items-center justify-center text-red-700">
-                <ShieldAlert className="w-4 h-4" />
-              </div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-red-600">Critical Gaps</span>
+              <ShieldAlert className="w-4 h-4 text-red-600" />
             </div>
-            <div className="text-2xl font-extrabold text-red-700 tracking-tight">{summary.criticalContextGaps}</div>
-            <div className="text-[10px] text-red-600 font-medium mt-1">Continuity risks</div>
+            <div className="text-2xl font-bold text-red-700 tracking-tight font-sans">{summary.criticalContextGaps}</div>
+            <div className="text-[11px] text-red-600/90 mt-1 font-medium">Continuity risks</div>
           </Card>
         </Link>
       </div>
 
       {/* Main 2-Column Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column (2 cols): Context Gap Detector Findings */}
+        {/* Left Column (2 spans): Context Gap Detector Findings */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="shadow-sm border-slate-200">
-            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-4">
+          <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <CardTitle className="flex items-center gap-2 text-base font-bold text-slate-900">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-900">
                   <ShieldAlert className="w-4 h-4 text-rose-600" />
-                  <span>Context Gap Detector — High Priority Continuities</span>
+                  <span>Context Gap Detector — High Priority Risks</span>
                 </CardTitle>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Automated deterministic rules and AI cross-verification of conflicting states.
+                  Missing owners, unrecorded blockers, conflicting project states, and unconfirmed dates.
                 </p>
               </div>
               <Link to="/context-gaps">
-                <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold">
-                  <span>View All</span>
-                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+                  View All Gaps
                 </Button>
               </Link>
             </CardHeader>
@@ -302,8 +252,8 @@ export const OverviewPage: React.FC = () => {
               {summary.criticalGaps.length === 0 ? (
                 <div className="p-8 text-center text-xs text-slate-400">
                   <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-                  <p className="font-semibold text-slate-700">No critical context gaps detected!</p>
-                  <p className="text-slate-400 mt-0.5">All tasks and decisions meet continuity requirements.</p>
+                  <p className="font-semibold text-slate-700">No critical context gaps detected</p>
+                  <p className="text-slate-400 mt-0.5">All commitments and decisions meet continuity specifications.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -311,30 +261,30 @@ export const OverviewPage: React.FC = () => {
                     <div
                       key={gap._id}
                       onClick={() => setSelectedGap(gap)}
-                      className="p-4 rounded-xl border border-slate-200/90 bg-slate-50/30 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all cursor-pointer space-y-2 group shadow-xs"
+                      className="p-3.5 rounded-lg border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/50 transition-colors cursor-pointer space-y-2 group"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <SeverityBadge severity={gap.severity} />
-                          <span className="text-[10px] text-slate-500 font-mono bg-white px-2 py-0.5 rounded border border-slate-200">
+                          <span className="text-[10px] text-slate-500 font-mono bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                             {gap.gapType} • {gap.detectionMethod}
                           </span>
                         </div>
-                        <span className="text-[10px] text-slate-400 font-medium">{timeAgo(gap.detectedAt)}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">{timeAgo(gap.detectedAt)}</span>
                       </div>
 
-                      <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
+                      <p className="text-xs font-semibold text-slate-900 leading-snug">
                         {gap.description}
                       </p>
 
                       {gap.evidence && (
-                        <p className="text-[11px] text-slate-500 italic bg-white/80 p-2 rounded border border-slate-200/60 line-clamp-2">
+                        <p className="text-[11px] text-slate-500 italic bg-slate-50 p-2 rounded border border-slate-100 line-clamp-1">
                           Evidence: &ldquo;{gap.evidence}&rdquo;
                         </p>
                       )}
 
-                      <div className="pt-1 flex items-center justify-between text-xs text-indigo-600 font-semibold group-hover:text-indigo-700">
-                        <span className="truncate pr-2">Recommended: {gap.recommendedResolution}</span>
+                      <div className="pt-1 flex items-center justify-between text-xs text-indigo-600 font-medium">
+                        <span className="truncate pr-2">Resolution: {gap.recommendedResolution}</span>
                         <ArrowRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
                       </div>
                     </div>
@@ -344,40 +294,37 @@ export const OverviewPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Upcoming Deadlines */}
-          <Card className="shadow-sm border-slate-200">
-            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-4">
-              <CardTitle className="flex items-center gap-2 text-base font-bold text-slate-900">
-                <Clock className="w-4 h-4 text-indigo-600" />
+          {/* Upcoming Milestones */}
+          <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-900">
+                <Clock className="w-4 h-4 text-slate-600" />
                 <span>Upcoming Milestones & Deadlines</span>
               </CardTitle>
               <Link to="/tasks">
-                <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold">
-                  <span>All Tasks</span>
-                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+                  All Tasks
                 </Button>
               </Link>
             </CardHeader>
-            <CardContent className="pt-4">
+            <CardContent className="pt-3">
               {summary.upcomingDeadlines.length === 0 ? (
                 <p className="text-xs text-slate-400 italic text-center py-6">
-                  No upcoming deadlines with target dates set.
+                  No upcoming deadlines recorded with target dates.
                 </p>
               ) : (
                 <div className="divide-y divide-slate-100">
                   {summary.upcomingDeadlines.map((task) => (
-                    <div key={task._id} className="py-3 flex items-center justify-between text-xs hover:bg-slate-50/60 px-2 rounded-lg transition-colors">
+                    <div key={task._id} className="py-2.5 flex items-center justify-between text-xs">
                       <div className="space-y-0.5 pr-4">
-                        <p className="font-semibold text-slate-900 text-xs sm:text-sm">{task.title}</p>
-                        <p className="text-[11px] text-slate-500 flex items-center gap-2">
-                          <span>Owner: <strong className="text-slate-700">{task.owner || 'Unassigned'}</strong></span>
-                          <span>•</span>
-                          <span>Priority: <strong className="text-slate-700">{task.priority}</strong></span>
+                        <p className="font-semibold text-slate-900">{task.title}</p>
+                        <p className="text-[11px] text-slate-500">
+                          Owner: <span className="text-slate-700 font-medium">{task.owner || 'Unassigned'}</span> • Status: <span className="font-medium text-slate-700">{task.status}</span>
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="font-bold text-slate-800 text-xs">{formatDate(task.dueDate)}</span>
-                        <div className="mt-1">
+                        <span className="font-semibold text-slate-800 text-xs">{formatDate(task.dueDate)}</span>
+                        <div className="mt-0.5">
                           <TaskStatusBadge status={task.status} />
                         </div>
                       </div>
@@ -389,42 +336,39 @@ export const OverviewPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* Right Column (1 col): Recent Knowledge & Activity */}
+        {/* Right Column (1 span): Recent Knowledge & Activity */}
         <div className="space-y-6">
           {/* Recently Added Knowledge */}
-          <Card className="shadow-sm border-slate-200">
+          <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                <BookOpen className="w-4 h-4 text-indigo-600" />
-                <span>Vector Knowledge Hub</span>
+                <BookOpen className="w-4 h-4 text-slate-600" />
+                <span>Knowledge Sources</span>
               </CardTitle>
               <Link to="/knowledge">
-                <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold">
+                <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
                   Hub
                 </Button>
               </Link>
             </CardHeader>
             <CardContent className="pt-3">
               {summary.recentKnowledge.length === 0 ? (
-                <p className="text-xs text-slate-400 italic text-center py-4">No sources added yet.</p>
+                <p className="text-xs text-slate-400 italic text-center py-4">No sources ingested yet.</p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {summary.recentKnowledge.map((k) => (
-                    <div key={k._id} className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 text-xs space-y-1.5 hover:border-slate-300 transition-colors">
+                    <div key={k._id} className="p-3 rounded-lg bg-slate-50 border border-slate-200/80 text-xs space-y-1">
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold text-slate-900 truncate">
                           {k.title}
                         </span>
-                        <span className="text-[10px] text-slate-400 shrink-0 font-medium">{timeAgo(k.createdAt)}</span>
+                        <span className="text-[10px] text-slate-400 shrink-0 font-mono">{timeAgo(k.createdAt)}</span>
                       </div>
                       <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
                         {k.originalText}
                       </p>
-                      <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
-                        <span className="inline-flex items-center gap-1 text-indigo-600 font-medium">
-                          <Database className="w-2.5 h-2.5" />
-                          384-d Cosine Vector
-                        </span>
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5 font-mono">
+                        <span className="text-indigo-600 font-medium">384-d Vector</span>
                         <span>{k.sourceType}</span>
                       </div>
                     </div>
@@ -434,15 +378,15 @@ export const OverviewPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Recent Activity Log */}
-          <Card className="shadow-sm border-slate-200">
+          {/* Activity Feed */}
+          <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-3">
               <CardTitle className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-emerald-600" />
-                <span>Real-Time Audit Feed</span>
+                <Activity className="w-4 h-4 text-slate-600" />
+                <span>Audit Activity</span>
               </CardTitle>
               <Link to="/activity">
-                <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold">
+                <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
                   Full Log
                 </Button>
               </Link>
@@ -453,11 +397,10 @@ export const OverviewPage: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {summary.recentActivity.map((evt) => (
-                    <div key={evt._id} className="text-xs border-l-2 border-indigo-500 pl-3 py-1 bg-slate-50/40 rounded-r-lg">
+                    <div key={evt._id} className="text-xs border-l-2 border-indigo-600 pl-2.5 py-0.5">
                       <p className="font-medium text-slate-800 leading-snug">{evt.message}</p>
-                      <p className="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
-                        <span>{timeAgo(evt.createdAt)}</span>
-                        <span className="font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-[9px]">{evt.actor || 'System'}</span>
+                      <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
+                        {timeAgo(evt.createdAt)} • {evt.actor || 'System'}
                       </p>
                     </div>
                   ))}

@@ -53,7 +53,7 @@ export const ContextTransferPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <ArrowRightLeft className="w-6 h-6 text-purple-600" />
+            <ArrowRightLeft className="w-6 h-6 text-slate-700" />
             <span>Context Transfer Engine</span>
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -65,9 +65,9 @@ export const ContextTransferPage: React.FC = () => {
           variant="primary"
           size="sm"
           onClick={() => setModalOpen(true)}
-          className="gap-1.5 self-start sm:self-auto bg-purple-600 hover:bg-purple-700"
+          className="gap-1.5 self-start sm:self-auto bg-slate-900 hover:bg-slate-800 text-white"
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           <span>Generate New Handover</span>
         </Button>
       </div>
@@ -99,15 +99,15 @@ export const ContextTransferPage: React.FC = () => {
                   <div
                     key={t._id}
                     onClick={() => setSelectedTransferId(t._id)}
-                    className={`p-3.5 rounded-xl border transition-all cursor-pointer text-xs space-y-1 ${
+                    className={`p-3.5 rounded-lg border transition-all cursor-pointer text-xs space-y-1 ${
                       isSelected
-                        ? 'bg-purple-50/80 border-purple-300 shadow-2xs'
+                        ? 'bg-slate-100 border-slate-300 shadow-xs'
                         : 'bg-white border-slate-200/80 hover:border-slate-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-purple-900">{t.transferType}</span>
-                      <span className="text-[10px] text-slate-400">{timeAgo(t.createdAt)}</span>
+                      <span className="font-bold text-slate-900">{t.transferType}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{timeAgo(t.createdAt)}</span>
                     </div>
                     <div className="text-[11px] text-slate-600">
                       {t.outgoingOwner && <span>From: {t.outgoingOwner} ➔ </span>}
