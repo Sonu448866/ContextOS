@@ -37,8 +37,14 @@ export class AIService {
 
   private static async callLLM(systemPrompt: string, userPrompt: string): Promise<string> {
     const startTime = Date.now();
-    const groqKey = env.GROQ_API_KEY || (env.AI_PROVIDER === 'groq' ? env.AI_API_KEY : '');
-    const geminiKey = env.GEMINI_API_KEY || (env.AI_PROVIDER === 'gemini' ? env.AI_API_KEY : '');
+    const groqKey =
+      env.GROQ_API_KEY ||
+      (env.AI_API_KEY?.startsWith('gsk_') ? env.AI_API_KEY : '') ||
+      (env.AI_PROVIDER === 'groq' ? env.AI_API_KEY : '') ||
+      process.env.GROQ_API_KEY ||
+      process.env.AI_API_KEY ||
+      '';
+    const geminiKey = env.GEMINI_API_KEY || (env.AI_PROVIDER === 'gemini' ? env.AI_API_KEY : '') || process.env.GEMINI_API_KEY || '';
 
     // 1. Prefer Groq LPU if key is present (Ultra-fast 1.5s inference, avoids Gemini 503 high demand spikes)
     if (groqKey) {

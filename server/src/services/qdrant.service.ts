@@ -34,8 +34,10 @@ interface InMemoryPoint {
 }
 
 export class QdrantService {
-  private static readonly url = env.QDRANT_URL?.replace(/\/$/, '') || '';
-  private static readonly apiKey = env.QDRANT_API_KEY || '';
+  private static readonly url = (
+    env.QDRANT_URL || process.env.QDRANT_URL || ''
+  ).replace(/\/$/, '');
+  private static readonly apiKey = env.QDRANT_API_KEY || process.env.QDRANT_API_KEY || '';
   private static readonly collectionName = env.QDRANT_COLLECTION || 'knowledge';
   private static readonly dimension = env.EMBEDDING_DIMENSION || 384;
 
