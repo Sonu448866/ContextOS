@@ -40,8 +40,8 @@
 10. [Local Setup Instructions](#10-local-setup-instructions)
 11. [Environment Variables Guide](#11-environment-variables-guide)
 12. [REST API Endpoints Reference](#12-rest-api-endpoints-reference)
-13. [Step-by-Step Demonstration Script](#13-step-by-step-demonstration-script)
-14. [Interview Talking Points & Resume Bullets](#14-interview-talking-points--resume-bullets)
+13. [Security & Observability](#13-security--observability)
+14. [Enterprise Roadmap](#14-enterprise-roadmap)
 
 ---
 
@@ -371,41 +371,22 @@ npm run dev
 
 ---
 
-## 13. Step-by-Step Demonstration Script
+## 13. Security & Observability
 
-Follow this 5-step walkthrough to demonstrate ContextOS during an interview or evaluation:
-
-1. **Executive Dashboard (`/`):**
-   * Inspect the **Project Health Score** ($78/100$) and the **Continuity Risks** summary.
-   * Observe active project KPIs (tasks, knowledge chunks, identified gaps).
-2. **Knowledge Hub & Vector Sync (`/knowledge`):**
-   * Review pre-seeded architecture notes and updates.
-   * Click **"Sync Vectors to Qdrant"** to trigger batch embedding of 46+ chunks into Qdrant Cloud.
-3. **Ask Your Project & RAG Triad (`/ask`):**
-   * Ask: *"Why is checkout testing blocked and what is the status of Razorpay?"*
-   * Observe sub-10ms Qdrant vector retrieval.
-   * Expand the **Qdrant Vector Inspector** to examine cosine similarity scores and text chunks.
-   * Review the **Live RAG Triad Panel** (Faithfulness, Relevance, Precision, and latency breakdown).
-4. **Context Gap Detector (`/context-gaps`):**
-   * View detected critical gaps (e.g., checkout testing blocked without target completion dates).
-   * Acknowledge or resolve gaps with audit logging.
-5. **Context Transfer Package (`/context-transfer`):**
-   * View the synthesized **17-part Handover Package**.
-   * Demonstrate **Download `.md`**, **Copy Markdown**, and **Print to PDF**.
+* **Correlation Tracing:** Every HTTP transaction generates or propagates an `x-request-id` UUIDv4 correlation identifier, enabling end-to-end trace correlation from client requests through vector retrieval to LLM completion.
+* **Sensitive Data Redaction:** Pino logging transports automatically scrub request headers, tokens, authorization credentials, and sensitive environment keys.
+* **Prompt Injection Safeguards:** LLM system prompts strictly isolate ingested project documents within bounded markdown code fences and instruct the model to ignore instruction-override attempts inside document content.
+* **CORS & Header Hardening:** Protected via Helmet with strict CSP policies, frameguard protection, and origin whitelist restrictions.
 
 ---
 
-## 14. Interview Talking Points & Resume Bullets
+## 14. Enterprise Roadmap
 
-### High-Impact Resume Bullets
-* **ContextOS — AI-Powered Knowledge & Context Transfer Platform** `[TypeScript, React, Node.js, Qdrant Cloud, Groq LPU, SentenceTransformers]`
-  * Engineered a production RAG platform to mitigate engineering knowledge loss during developer offboarding, indexing unstructured project artifacts into **Qdrant Cloud** with 384-dimensional embeddings.
-  * Designed a **Live RAG Evaluation Triad** computing real-time Faithfulness, Answer Relevance, and Context Precision scores with sub-10ms vector retrieval latencies.
-  * Built a **Polyglot Architecture** coupling a high-concurrency Node.js Express orchestration layer with a native Python PyTorch embedding pipeline (`all-MiniLM-L6-v2`), avoiding third-party embedding API costs.
-  * Architected a **Context Gap & Contradiction Detector** combining deterministic graph checks with Groq semantic validation (`openai/gpt-oss-20b`) to eliminate unassigned dependencies before release.
-
-### Answering: *"Why did you use TypeScript for the backend and Python for embeddings?"*
-> *"I deliberately decoupled tensor math from API orchestration. Python with `sentence_transformers` handles local vector embedding generation because of PyTorch's native tensor math. For the web server and RAG pipeline, TypeScript/Node.js provides non-blocking asynchronous I/O, effortless token streaming, and end-to-end type safety between backend schemas and the React frontend without DTO drift."*
+The following commercial extensions are planned for enterprise deployment:
+* **Automated GitHub & Jira Ingestion:** Continuous webhook listening for merged PR descriptions, Architecture Decision Records (ADRs), and resolved sprint blockers.
+* **Slack / MS Teams Conversational Bot:** In-channel query assistant responding to `/context ask [query]` with source attribution.
+* **Enterprise SSO & Role-Based Access Control (RBAC):** SAML/Okta integration with permission boundaries across workspace administrators, technical leads, and read-only contributors.
+* **Incremental Delta Vector Indexing:** Worker queue re-embedding only modified paragraphs on document updates.
 
 ---
 

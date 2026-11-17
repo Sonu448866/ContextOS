@@ -106,20 +106,20 @@ export const OverviewPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Evaluator / Resume Interactive Tour Guide */}
+      {/* Platform Quickstart & Continuity Workflow */}
       <div className="p-4 rounded-xl bg-slate-900 text-slate-300 shadow-sm border border-slate-800 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-              Resume Portfolio Tour & Flow Guide
+              Platform Workflow Guide
             </span>
             <span className="text-[10px] text-slate-400 font-mono hidden md:inline">
-              (Live Scenario: E-commerce Continuity & Razorpay Blocker)
+              (Live Environment: Continuity Observability & Razorpay Integration)
             </span>
           </div>
           <span className="text-[11px] text-slate-400 font-mono">
-            Follow the 5-step flow below:
+            Follow the 5-step operational flow:
           </span>
         </div>
 
