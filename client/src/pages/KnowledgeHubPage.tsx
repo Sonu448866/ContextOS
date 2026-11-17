@@ -22,7 +22,8 @@ import {
   Search,
   Filter,
   Database,
-  Check
+  Check,
+  Trash2
 } from 'lucide-react';
 
 export const KnowledgeHubPage: React.FC = () => {
@@ -37,6 +38,7 @@ export const KnowledgeHubPage: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [search, setSearch] = useState('');
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   // Qdrant sync state
@@ -91,6 +93,22 @@ export const KnowledgeHubPage: React.FC = () => {
       setAnalysisError(err.message || 'AI extraction failed. You can retry.');
     } finally {
       setAnalyzingId(null);
+    }
+  };
+
+  const handleDeleteSource = async (sourceId: string, title: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${title}"?`)) {
+      return;
+    }
+    try {
+      setDeletingId(sourceId);
+      await api.delete(`/knowledge/${sourceId}`);
+      queryClient.invalidateQueries({ queryKey: ['knowledge'] });
+      queryClient.invalidateQueries({ queryKey: ['qdrant-status'] });
+    } catch (err: any) {
+      alert(`Failed to delete source: ${err.message}`);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -268,9 +286,19 @@ export const KnowledgeHubPage: React.FC = () => {
 
                 {/* Footer Actions */}
                 <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    ID: {source._id.substring(source._id.length - 6)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      ID: {source._id.substring(source._id.length - 6)}
+                    </span>
+                    <button
+                      onClick={() => handleDeleteSource(source._id, source.title)}
+                      disabled={deletingId === source._id}
+                      title="Delete knowledge source"
+                      className="text-slate-400 hover:text-red-600 transition-colors p-1 rounded"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
 
                   <Button
                     variant={source.extractionStatus === 'Completed' ? 'outline' : 'primary'}

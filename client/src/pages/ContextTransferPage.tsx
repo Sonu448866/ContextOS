@@ -21,7 +21,10 @@ import {
   ArrowRight,
   Clock,
   Layers,
-  HelpCircle
+  HelpCircle,
+  Copy,
+  Check,
+  Download
 } from 'lucide-react';
 
 export const ContextTransferPage: React.FC = () => {
@@ -30,6 +33,7 @@ export const ContextTransferPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTransferId, setSelectedTransferId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'structured' | 'markdown'>('structured');
+  const [copiedMarkdown, setCopiedMarkdown] = useState(false);
 
   const { data: transfers = [], isLoading } = useQuery<IContextTransfer[]>({
     queryKey: ['transfers', selectedProjectId],
@@ -45,6 +49,27 @@ export const ContextTransferPage: React.FC = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleCopyMarkdown = () => {
+    if (!activeTransfer?.generatedContent?.rawMarkdown) return;
+    navigator.clipboard.writeText(activeTransfer.generatedContent.rawMarkdown);
+    setCopiedMarkdown(true);
+    setTimeout(() => setCopiedMarkdown(false), 2000);
+  };
+
+  const handleDownloadMarkdown = () => {
+    if (!activeTransfer?.generatedContent?.rawMarkdown) return;
+    const blob = new Blob([activeTransfer.generatedContent.rawMarkdown], { type: 'text/markdown;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const safeTitle = (activeTransfer.transferType || 'handover').toLowerCase().replace(/\s+/g, '-');
+    link.href = url;
+    link.download = `contextos-${safeTitle}-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -157,6 +182,35 @@ export const ContextTransferPage: React.FC = () => {
                         Markdown
                       </button>
                     </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyMarkdown}
+                      className="gap-1.5 text-xs text-slate-700 hover:text-slate-900"
+                    >
+                      {copiedMarkdown ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="text-emerald-700 font-semibold">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy Markdown</span>
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDownloadMarkdown}
+                      className="gap-1.5 text-xs text-slate-700 hover:text-slate-900"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download .md</span>
+                    </Button>
 
                     <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1.5 text-xs">
                       <Printer className="w-3.5 h-3.5" />
