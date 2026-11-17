@@ -11,14 +11,31 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
   MONGODB_URI: z.string().default('mongodb://localhost:27017/contextos'),
   CLIENT_URL: z.string().default('http://localhost:5173'),
-  AI_PROVIDER: z.enum(['gemini', 'openai', 'anthropic', 'mock']).default('gemini'),
+
+  // AI Service Configuration
+  AI_PROVIDER: z.enum(['groq', 'gemini', 'openai', 'anthropic', 'mock']).default('groq'),
   AI_API_KEY: z.string().optional().default(''),
-  AI_MODEL: z.string().default('gemini-1.5-flash'),
+  GROQ_API_KEY: z.string().optional().default(''),
+  GEMINI_API_KEY: z.string().optional().default(''),
+  AI_MODEL: z.string().default('openai/gpt-oss-20b'),
+
+  // Qdrant Vector Database (RAG)
+  QDRANT_URL: z.string().optional().default(''),
+  QDRANT_API_KEY: z.string().optional().default(''),
+  QDRANT_COLLECTION: z.string().default('knowledge'),
+  EMBEDDING_MODEL: z.string().default('gemini-embedding-001'),
+  EMBEDDING_DIMENSION: z.coerce.number().default(384),
+
+  // Logging & Observability
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   LOG_FILE_PATH: z.string().default('logs/app.log'),
+
+  // Upload & Rate Limiting
   MAX_UPLOAD_SIZE_MB: z.coerce.number().default(10),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
+
+  // Context Gap Detection Thresholds
   STALE_TASK_DAYS: z.coerce.number().default(14)
 });
 

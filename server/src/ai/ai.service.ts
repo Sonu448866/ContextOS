@@ -39,7 +39,12 @@ export class AIService {
     const startTime = Date.now();
     const provider = env.AI_PROVIDER;
     const model = env.AI_MODEL;
-    const apiKey = env.AI_API_KEY;
+    const apiKey =
+      provider === 'groq'
+        ? env.GROQ_API_KEY || env.AI_API_KEY
+        : provider === 'gemini'
+        ? env.GEMINI_API_KEY || env.AI_API_KEY
+        : env.AI_API_KEY;
 
     logger.info({ provider, model }, 'Initiating AI model request');
 
@@ -48,7 +53,7 @@ export class AIService {
       if (!apiKey && provider !== 'mock') {
         logger.warn(
           { provider },
-          'No AI_API_KEY provided. System falling back to safe local intelligence heuristics.'
+          'No API key provided. System falling back to safe local intelligence heuristics.'
         );
       }
       const response = await AIService.mockFallback(systemPrompt, userPrompt);
@@ -60,7 +65,33 @@ export class AIService {
     try {
       let resultText = '';
 
-      if (provider === 'gemini') {
+      if (provider === 'groq') {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`
+          },
+          signal: AbortSignal.timeout(45000),
+          body: JSON.stringify({
+            model: model || 'openai/gpt-oss-20b',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0.1
+          })
+        });
+
+        if (!response.ok) {
+          const errBody = await response.text();
+          throw new Error(`Groq API error (${response.status}): ${errBody.substring(0, 300)}`);
+        }
+
+        const data: any = await response.json();
+        resultText = data?.choices?.[0]?.message?.content || '';
+      } else if (provider === 'gemini') {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(url, {
           method: 'POST',

@@ -9,6 +9,7 @@ import contextGapRoutes from './contextGap.routes';
 import activityRoutes from './activity.routes';
 import dashboardRoutes from './dashboard.routes';
 import seedRoutes from './seed.routes';
+import qdrantRoutes from './qdrant.routes';
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use('/', contextGapRoutes);
 router.use('/', activityRoutes);
 router.use('/', dashboardRoutes);
 router.use('/', seedRoutes);
+router.use('/', qdrantRoutes);
 
 export default router;

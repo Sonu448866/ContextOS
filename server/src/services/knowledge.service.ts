@@ -6,6 +6,7 @@ import { Project } from '../models/Project';
 import { AIService } from '../ai/ai.service';
 import { TaskService } from './task.service';
 import { ActivityService } from './activity.service';
+import { QdrantService } from './qdrant.service';
 import { AppError } from '../middleware/errorHandler.middleware';
 import {
   IKnowledgeSource,
@@ -55,6 +56,19 @@ export class KnowledgeService {
       message: `Added knowledge source "${source.title}" (${source.sourceType})`,
       requestId,
       metadata: { sourceType: source.sourceType, hasFile: !!data.fileMetadata }
+    });
+
+    // Vectorize into Qdrant for Semantic RAG
+    QdrantService.upsertSourceChunks({
+      projectId: data.projectId,
+      sourceId,
+      title: source.title,
+      sourceType: source.sourceType,
+      author: source.author || undefined,
+      tags: source.tags,
+      text: source.originalText
+    }).catch((err) => {
+      logger.warn({ err: err?.message, sourceId }, 'Failed to vectorize knowledge source into Qdrant');
     });
 
     return source.toObject() as any;

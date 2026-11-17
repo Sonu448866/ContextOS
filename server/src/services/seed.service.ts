@@ -9,6 +9,7 @@ import { ContextTransfer } from '../models/ContextTransfer';
 import { ActivityEvent } from '../models/ActivityEvent';
 import { ContextGapService } from './contextGap.service';
 import { ActivityService } from './activity.service';
+import { QdrantService } from './qdrant.service';
 import { logger } from '../config/logger';
 
 export class SeedService {
@@ -295,6 +296,13 @@ export class SeedService {
       entityId: t2Id.toString(),
       message: 'Task "Complete checkout testing" marked as Blocked'
     });
+
+    // Sync all seeded knowledge to Qdrant Vector DB
+    try {
+      await QdrantService.syncAllKnowledge(projectId);
+    } catch (err: any) {
+      logger.warn({ err: err?.message }, 'Failed to vectorize seeded sources to Qdrant');
+    }
 
     logger.info({ projectId }, 'Demo project "E-commerce Platform" seeded successfully');
 

@@ -258,12 +258,34 @@ export interface AIExtractionResult {
   contradictions: Array<{ issue: string; sourceA?: string; sourceB?: string; explanation: string }>;
 }
 
+export interface QdrantVectorMatch {
+  score: number;
+  rawScore: number;
+  chunkId: string | number;
+  text: string;
+  sourceTitle: string;
+  sourceId: string;
+  sourceType: string;
+  author?: string;
+}
+
+export interface VectorSearchMetadata {
+  provider: 'Qdrant';
+  connected: boolean;
+  collection: string;
+  queryLatencyMs: number;
+  topScore: number;
+  chunksRetrieved: number;
+  matches: QdrantVectorMatch[];
+}
+
 export interface AIQuestionAnswer {
   answer: string;
   citations: Array<{ sourceId: string; sourceTitle: string; excerpt: string }>;
   uncertaintyNotes?: string | null;
   conflictsDetected?: string[];
   confidenceScore?: number;
+  vectorSearchMetadata?: VectorSearchMetadata;
 }
 
 export interface DashboardSummary {
